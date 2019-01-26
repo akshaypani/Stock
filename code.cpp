@@ -8,8 +8,6 @@
 #include <windows.h>
 #include <conio.h>
 #include <stdlib.h>
-//#include <chrono>
-//#include <thread>
 
 using namespace std;
 
@@ -44,12 +42,6 @@ class CSVRow
                 m_data.push_back(cell);
             }
             // This checks for a trailing comma with no data after it.
-            if (!lineStream && cell.empty())
-            {
-                // If there was a trailing comma then add an empty element.
-//                m_data.push_back("");
-            }
-        }
         void readLastRow(istream& fin)
         {
         	fin.seekg(-3,ios_base::end);                // go to one spot before the EOF
@@ -116,8 +108,6 @@ class Trade
 		
 		void displayIndicators(void)
 		{
-//			for(int i=13; i<data.size(); ++i)
-//				cout<<round(data[i])<<"\t\t";
 			cout<<round(data[6])<<"\t\t"<<round(data[7])<<"\t\t"<<round(data[10])<<"\t\t"<<round(data[18])<<"\t\t"<<round(data[19])<<"\t\t";
 		}
 		
@@ -158,6 +148,8 @@ void Trade::calcIndicators()
 	data.clear();
 	data.insert(data.begin(),&a[0],&a[5]);
 	
+
+//	VWAP calculation
 	t_price = (high+low+close)/3;
 	data.push_back(t_price);
 	
@@ -166,7 +158,7 @@ void Trade::calcIndicators()
 	cumul_vol += vol;
 	
 	
-	
+//	MVWAP Calculation	
 	if(mov_history.size()>=5)
 	{
 		init_data.clear();
@@ -182,7 +174,7 @@ void Trade::calcIndicators()
 	data.push_back(MVWAP);
 	
 	
-	
+//	MACD Calculation	
 	sum_c_price+=close;
 	
 	if(mov_history.size()<12)
@@ -191,23 +183,17 @@ void Trade::calcIndicators()
 		EMA_12 = 2.0/13.0*close+mov_history.at(0).second[8]*11.0/13.0;	
 	data.push_back(EMA_12);
 	
-	
-	
 	if(mov_history.size()<26)
 		EMA_26 = sum_c_price/(mov_history.size()+1);
 	else
 		EMA_26 = 2.0/27.0*close+mov_history.at(0).second[9]*25.0/27.0;	
 	data.push_back(EMA_26);
 	
-	
-	
 	if(mov_history.size()<25)
 		MACD = 0;
 	else
 		MACD = EMA_12-EMA_26;	
 	data.push_back(MACD);
-	
-	
 	
 	sum_macd += MACD;
 	histogram_macd = 0;
@@ -223,7 +209,7 @@ void Trade::calcIndicators()
 	data.push_back(signal_macd);
 	data.push_back(histogram_macd);
 	
-	
+// 	RSI Calculation	
 	up_move = down_move = 0;
 	if(mov_history.size()>=1)
 	{
@@ -260,7 +246,7 @@ void Trade::calcIndicators()
 	data.push_back(RS);
 	data.push_back(RSI);
 	
-	
+//	SMA Calculation	
 	if(mov_history.size()>=14)
 	{
 		init_data.clear();
@@ -436,8 +422,7 @@ void Trade::Start(bool trade_type_in,string path_in)
 
 int main()
 {
-//    clrscr();
-	Trade T;
+    Trade T;
     T.Start(0,"HistoricalQuotes.csv");
     getch();
     return 0;
